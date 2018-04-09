@@ -12,7 +12,7 @@ def start(bot, update):
 
 # /showTasks
 def show(bot, update):
-    if(len(tasks) <= 0):
+    if len(tasks) <= 0:
         update.message.reply_text("Nothing to do, here!")
     else:
         update.message.reply_text(tasks)
@@ -21,35 +21,49 @@ def show(bot, update):
 # /newTask
 def new(bot, update, args):
 
-    toAdd=""
+    toAdd = ""
 
     for el in args:
-        toAdd=toAdd+" "+el
+        toAdd = toAdd+" "+el
 
     if toAdd not in tasks:
-        tasks.append(toAdd)
-        update.message.reply_text("Task correctly added")
+        tasks.add(toAdd)
+        update.message.reply_text(" The new task was successfully added to the list!")
     else:
         update.message.reply_text("Task is already present in the list")
 
+
 # /remove
 def remove(bot, update, args):
-    toRemove = ""
+
+    to_remove = ""
 
     for el in args:
-        toRemove = toAdd + " " + el
+        to_remove = to_remove + " " + el
 
-    if toRemove in tasks:
-        tasks.remove(toRemove)
-        update.message.reply_text("Task correctly removed")
+    if to_remove in tasks:
+        tasks.remove(to_remove)
+        update.message.reply_text("The task was successfully deleted!")
     else:
-        update.message.reply_text("Task not present in task list")
+        update.message.reply_text("The task you specified is not in the list!")
+
 
 # /removeAll
 def removeAll(bot, update):
     # send the message back
-    tasks.clear()
-    update.message.reply_text("Every task has been deleted")
+    if len(tasks) <=0:
+        update.message.reply_text("I did not find any task to delete!")
+
+    else:
+        tasks.clear()
+        update.message.reply_text("Every task has been deleted")
+
+
+# error
+def error(bot, update):
+    # simulate typing from the bot
+    bot.sendChatAction(update.message.chat_id, ChatAction.TYPING)
+    update.message.reply_text("I am sorry, but I cannot do that")
 
 
 def main():
@@ -71,11 +85,14 @@ def main():
     # /newTask < task to add >
     dp.add_handler(CommandHandler("newTask", new, pass_args=True))
 
-    # / removeTask < task to remove >
+    # /removeTask < task to remove >
     dp.add_handler(CommandHandler("removeTask", remove, pass_args=True))
 
-    # / removeAllTasks < substring to use  to remove all  the  tasks that contain it >
+    # /removeAllTasks < substring to use  to remove all  the  tasks that contain it >
     dp.add_handler(CommandHandler("removeAllTasks", removeAll))
+
+    # error
+    dp.add_handler(MessageHandler(Filters.text, error))
 
 
     # start the bot
